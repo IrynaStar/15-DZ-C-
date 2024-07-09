@@ -1,0 +1,83 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    public static void Main()
+    {
+        // Создаем словарь для хранения частоты слов
+        var wordFrequency = new Dictionary<string, int>();
+
+        // Путь к файлу с текстом
+        string filePath = @"D:\C#\ДЗ С#\Kobzar.txt";
+
+        // Чтение текста из файла
+        string kobzarText = ReadTextFromFile(filePath);
+
+        // Замена символа 'і' на 'i' в тексте (сделала для красоты просто)
+        kobzarText = ReplaceUkrainianI(kobzarText);
+
+        // Преобразование текста в массив слов 
+        string[] words = kobzarText.Split(new char[] { ' ', ',', '.', '!', '?', '-', '—', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
+        // Подсчет частоты слов
+        foreach (string word in words)
+        {
+            string cleanedWord = word.ToLower(); // Приведение к нижнему регистру 
+
+            // Условие для учета слов длиной от 3 до 20 символов
+            if (cleanedWord.Length >= 3 && cleanedWord.Length <= 20)
+            {
+                if (wordFrequency.ContainsKey(cleanedWord))
+                {
+                    wordFrequency[cleanedWord]++;
+                }
+                else
+                {
+                    wordFrequency[cleanedWord] = 1;
+                }
+            }
+        }
+
+        // Вывод топ 5 самых популярных слов
+        Console.WriteLine("Top 5 words:");
+        Console.WriteLine("{0,-5} {1,-10} {2,-15}", "№", "Word", "Frequency");
+        Console.WriteLine("------------------------------------");
+
+        int count = 0;
+        foreach (var pair in GetTopWords(wordFrequency, 5))
+        {
+            count++;
+            Console.WriteLine("{0,-5} {1,-10} {2,-15}", count, pair.Key, pair.Value);
+        }
+    }
+
+    // Метод для чтения текста из файла
+    public static string ReadTextFromFile(string filePath)
+    {
+        string text = string.Empty;
+        try
+        {
+            // Чтение текста из файла
+            text = System.IO.File.ReadAllText(filePath);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error reading file: {ex.Message}");
+        }
+        return text;
+    }
+
+    // Метод для замены символа 'і' на 'i'
+    public static string ReplaceUkrainianI(string text)
+    {
+        return text.Replace('і', 'i').Replace('І', 'I');
+    }
+
+    // Метод для получения топ N самых популярных слов из словаря
+    public static List<KeyValuePair<string, int>> GetTopWords(Dictionary<string, int> wordFrequency, int topN)
+    {
+        return wordFrequency.OrderByDescending(x => x.Value).Take(topN).ToList();
+    }
+}
